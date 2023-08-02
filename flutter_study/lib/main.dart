@@ -32,20 +32,24 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 TextField(
-                  decoration: InputDecoration(labelText: "이메일"),
+                  decoration: InputDecoration(
+                    labelText: '이메일',
+                  ),
                 ),
                 TextField(
                   obscureText: true,
-                  decoration: InputDecoration(labelText: "비밀번호"),
+                  decoration: InputDecoration(
+                    labelText: '비밀번호',
+                  ),
                 ),
                 Container(
                   width: double.infinity,
                   margin: EdgeInsets.only(top: 24),
                   child: ElevatedButton(
                     onPressed: () {},
-                    child: Text('로그인'),
+                    child: Text("로그인"),
                   ),
-                )
+                ),
               ],
             ),
           ),
