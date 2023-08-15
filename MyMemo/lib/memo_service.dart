@@ -6,21 +6,31 @@ import 'main.dart';
 
 // Memo 데이터의 형식을 정해줍니다. 추후 isPinned, updatedAt 등의 정보도 저장할 수 있습니다.
 class Memo {
-  Memo({required this.content, this.isPinned = false, required this.date});
+  Memo({
+    required this.content,
+    this.isPinned = false,
+    this.updatedAt,
+  });
 
   String content;
   bool isPinned;
-  String date;
+  DateTime? updatedAt;
 
   Map toJson() {
-    return {'content': content, 'isPinned': isPinned, 'date': date};
+    return {
+      'content': content,
+      'isPinned': isPinned,
+      'updatedAt': updatedAt?.toIso8601String(),
+    };
   }
 
   factory Memo.fromJson(json) {
     return Memo(
-        content: json['content'],
-        isPinned: json['isPinned'] ?? false,
-        date: json['date']);
+      content: json['content'],
+      isPinned: json['isPinned'] ?? false,
+      updatedAt:
+          json['updatedAt'] == null ? null : DateTime.parse(json['updatedAt']),
+    );
   }
 }
 
@@ -30,10 +40,13 @@ class MemoService extends ChangeNotifier {
     loadMemoList();
   }
 
-  List<Memo> memoList = [];
+  List<Memo> memoList = [
+    Memo(content: '장보기 목록: 사과, 양파'), // 더미(dummy) 데이터
+    Memo(content: '새 메모'), // 더미(dummy) 데이터
+  ];
 
-  createMemo({required String content, required String date}) {
-    Memo memo = Memo(content: content, date: date);
+  createMemo({required String content}) {
+    Memo memo = Memo(content: content, updatedAt: DateTime.now());
     memoList.add(memo);
     notifyListeners(); // Consumer<MemoService>의 builder 부분을 호출해서 화면 새로고침
     saveMemoList();
@@ -42,12 +55,18 @@ class MemoService extends ChangeNotifier {
   updateMemo({required int index, required String content}) {
     Memo memo = memoList[index];
     memo.content = content;
+    memo.updatedAt = DateTime.now();
+    notifyListeners();
+    saveMemoList();
+  }
+
+  updatePinMemo({required int index}) {
+    Memo memo = memoList[index];
     memo.isPinned = !memo.isPinned;
     memoList = [
       ...memoList.where((element) => element.isPinned),
       ...memoList.where((element) => !element.isPinned)
     ];
-    memoList.sort();
     notifyListeners();
     saveMemoList();
   }

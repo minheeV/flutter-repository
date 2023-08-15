@@ -65,10 +65,7 @@ class _HomePageState extends State<HomePage> {
                             ? CupertinoIcons.pin_fill
                             : CupertinoIcons.pin),
                         onPressed: () {
-                          print('$memo : pin 클릭 됨');
-                          memoService.updateMemo(index: index);
-                          //memoList.removeAt(index);
-                          //memoList.insert(0, memo);
+                          memoService.updatePinMemo(index: index);
                         },
                       ),
                       // 메모 내용 (최대 3줄까지만 보여주도록)
@@ -77,9 +74,12 @@ class _HomePageState extends State<HomePage> {
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      onTap: () {
+                      trailing: Text(memo.updatedAt == null
+                          ? ""
+                          : memo.updatedAt.toString().substring(0, 19)),
+                      onTap: () async {
                         // 아이템 클릭시
-                        Navigator.push(
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => DetailPage(
@@ -87,16 +87,19 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         );
+                        if (memo.content.isEmpty) {
+                          memoService.deleteMemo(index: index);
+                        }
                       },
                     );
                   },
                 ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
-            onPressed: () {
+            onPressed: () async {
               // + 버튼 클릭시 메모 생성 및 수정 페이지로 이동
               memoService.createMemo(content: '');
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => DetailPage(
@@ -104,6 +107,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               );
+              if (memoList[memoService.memoList.length - 1].content.isEmpty) {
+                memoService.deleteMemo(index: memoList.length - 1);
+              }
             },
           ),
         );
@@ -126,6 +132,7 @@ class DetailPage extends StatelessWidget {
     Memo memo = memoService.memoList[index];
 
     contentController.text = memo.content;
+
     return Scaffold(
       appBar: AppBar(
         actions: [
